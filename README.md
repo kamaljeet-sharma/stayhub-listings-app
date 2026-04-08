@@ -1,6 +1,6 @@
-StayHub Listings App
+*StayHub Listings App*
 
-A full-stack web application built using the MERN stack (MongoDB, Express, Node.js) with EJS templating, where users can view, create, edit, and manage property listings.
+#A full-stack web application built using the MERN stack (MongoDB, Express, Node.js) with EJS templating, where users can view, create, edit, and manage property listings.
 
 . Features
 . View all listings
