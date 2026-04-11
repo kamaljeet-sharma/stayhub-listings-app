@@ -7,6 +7,8 @@ const methodOverride = require("method-override");
 const ejs = require('ejs-mate');
 const wrapAsync = require("./Utils/wrapAsync.js");
 const ExpressError = require("./Utils/EcpressError.js");
+const { listingSchema, reviewSchema } = require("./schema.js");
+const Review = require("./models/review.js");
 
 const MONGO_URL = "mongodb://127.0.0.1:27017/Wonderlust";
 
@@ -33,6 +35,28 @@ app.get("/", (req, res) => {
     res.send("Hi, I am root");
 });
 
+const validateListing = (req, res, next) => {
+    let result = listingSchema.validate(req.body);
+    if (result.error) {
+        let errMsg = result.error.details.map((el) => el.message).join(",");
+        throw new ExpressError(400, errMsg);
+    } else {
+        next();
+    }
+};
+
+//validate review
+const validateReview = (req, res, next) => {
+    let result = reviewSchema.validate(req.body);
+    if (result.error) {
+        let errMsg = result.error.details.map((el) => el.message).join(",");
+        console.log(errMsg);
+        throw new ExpressError(400, errMsg);
+    } else {
+        next();
+    }
+};
+
 //Index Route
 app.get("/listings", wrapAsync(async (req, res) => {
     const allListings = await Listing.find({});
@@ -47,15 +71,12 @@ app.get("/listings/new", (req, res) => {
 //Show Route
 app.get("/listings/:id", wrapAsync(async (req, res) => {
     let { id } = req.params;
-    const listing = await Listing.findById(id);
+    const listing = await Listing.findById(id).populate("reviews");
     res.render("listings/show.ejs", { listing });
 }));
 
 //Create Route
-app.post("/listings", wrapAsync(async (req, res, next) => {
-    if (!req.body.listing) {
-        throw new ExpressError(400, "Send valid data for Listing");
-    }
+app.post("/listings", validateListing, wrapAsync(async (req, res) => {
     const newListing = new Listing(req.body.listing);
     await newListing.save();
     res.redirect("/listings");
@@ -69,10 +90,7 @@ app.get("/listings/:id/edit", wrapAsync(async (req, res) => {
 }));
 
 //Update Route
-app.put("/listings/:id", wrapAsync(async (req, res) => {
-    if (!req.body.listing) {
-        throw new ExpressError(400, "Send valid data for updating List");
-    }
+app.put("/listings/:id", validateListing, wrapAsync(async (req, res) => {
     let { id } = req.params;
     await Listing.findByIdAndUpdate(id, { ...req.body.listing });
     res.redirect(`/listings/${id}`);
@@ -85,6 +103,30 @@ app.delete("/listings/:id", wrapAsync(async (req, res) => {
     console.log(deletedListing);
     res.redirect("/listings");
 }));
+
+//reviews
+//post route for reviews
+app.post("/listings/:id/reviews", validateReview, wrapAsync(async (req, res) => {
+    let listing = await Listing.findById(req.params.id);
+    let newReview = new Review(req.body.review);
+
+    listing.reviews.push(newReview);
+    await newReview.save();
+    await listing.save();
+
+    res.redirect(`/listings/${listing._id}`);
+    console.log(newReview);
+    console.log(listing);
+}));
+
+//delete route for reviews
+app.delete("/listings/:id/reviews/:reviewId", wrapAsync(async (req, res) => {
+    let { id, reviewId } = req.params;
+    await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
+    await Review.findByIdAndDelete(reviewId);
+    res.redirect(`/listings/${id}`);
+}));
+
 
 // app.get("/testListing", async (req, res) => {
 //   let sampleListing = new Listing({
@@ -114,70 +156,3 @@ app.use((err, req, res, next) => {
 app.listen(8080, () => {
     console.log("server is listening to port 8080");
 });
-
-
-
-
-
-
-
-
-// const express = require('express');
-// const app = express();
-// let port = 8080;
-// const mongoose = require('mongoose');
-// const listing = require('./models/listing.js');
-// const mongoose_URL = "mongodb://127.0.0.1:27017/Wonderlust";
-// const path = require('path');
-
-
-// // app.set("view engine", "ejs");
-// // app.set("views", path.join(__dirname, "views"));
-
-// main()
-//     .then(() => {
-//         console.log("connected to DB");
-//     }).catch((err) => console.log(err));
-
-// async function main() {
-//     await mongoose.connect(mongoose_URL);
-// }
-
-// //root route
-// app.get("/", (req, res) => {
-//     res.send("welcome to root ");
-// });
-
-// // app.get("/listings", async (req, res) => {
-// //     // const allListings = await listing.find({});
-// //     // res.render("listings/index.ejs", { allListings });
-// //     // console.log(allListings);
-// //     Listing.find({}).then((res) => {
-// //         console.log(res);
-// //     });
-// // });
-
-// // //listin root
-// app.get("/testListing", async (req, res) => {
-//     let sampleListing = new Listing({
-//         title: "kitt's home",
-//         description: "a beautiful villa by the beach",
-//         price: 12000,
-//         location: "johu beach, mumbai",
-//         country: "India",
-//     });
-
-//     await sampleListing.save();
-//     console.log("data  was saved");
-//     res.send("successful test");
-// });
-
-// //server
-// app.listen(port, () => {
-//     console.log(`server is listening on port : ${port} `)
-// });
-
-
-
-
-
