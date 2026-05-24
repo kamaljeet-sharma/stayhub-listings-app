@@ -8,7 +8,7 @@ const mongoose = require("mongoose");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejs = require('ejs-mate');
-const ExpressError = require("./Utils/EcpressError.js");
+const ExpressError = require("./Utils/ExpressError.js");
 
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
@@ -30,11 +30,14 @@ main()
         console.log("connected to DB");
     })
     .catch((err) => {
-        console.log(err);
+        console.error("MongoDB Connection Error:", err.message);
     });
 
 async function main() {
-    await mongoose.connect(dbUrl);
+    await mongoose.connect(dbUrl, {
+        tlsAllowInvalidCertificates: true,
+        serverSelectionTimeoutMS: 5000,
+    });
 }
 
 app.set("view engine", "ejs");
