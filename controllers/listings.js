@@ -1,3 +1,5 @@
+
+const axios = require("axios");
 const Listing = require('../models/listing');
 
 
@@ -30,8 +32,29 @@ module.exports.createListing = async (req, res) => {
     let filename = req.file.filename;
 
     const newListing = new Listing(req.body.listing);
+
+    const locationText = `${newListing.location}, ${newListing.country}`;
+
+    // OpenStreetMap Geocoding
+    const response = await axios.get(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationText)}`,
+        {
+            headers: {
+                "User-Agent": "StayHubApp/1.0"
+            }
+        }
+    );
+
+    if (response.data.length > 0) {
+        newListing.geometry = {
+            lat: parseFloat(response.data[0].lat),
+            lng: parseFloat(response.data[0].lon),
+        };
+    }
+
     newListing.owner = req.user._id;
     newListing.image = { url, filename };
+    console.log(newListing);
     await newListing.save();
     req.flash("success", "Successfully created a new listing!");
     res.redirect("/listings");

@@ -16,6 +16,11 @@ const listingSchema = new Schema({
     location: String,
     country: String,
 
+    geometry: {
+        lat: Number,
+        lng: Number,
+    },
+
     reviews: [
         {
             type: Schema.Types.ObjectId,
