@@ -100,21 +100,11 @@
 
                     <h3>Location</h3>
 
-                    <div id="map" style="height: 400px; width: 100%; border-radius: 10px;">
+                    <div id="map" data-lat="<%= listing.geometry.lat %>" data-lng="<%= listing.geometry.lng %>"
+                        data-title="<%= listing.title %>" style="height: 400px; width: 100%; border: 2px solid black;">
                     </div>
 
                 </div>
-
-                <script>
-
-                    const coordinates = [
-                         <%= listing.geometry.lat %>,
-                         <%= listing.geometry.lng %>
-                    ];
-
-                    const listingTitle = "<%= listing.title %>";
-
-                </script>
 
                 <script src="/js/map.js"></script>
     </div>
