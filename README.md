@@ -85,11 +85,11 @@ Integrated MongoDB for efficient data storage.
 
 Kamaljeet Sharma
 
-📧 Email: kamaljeetsharma2020@gmail.com
+📧 Email: kamaljeetsharma264@gmail.com
 
 💼 GitHub: Kamaljeet Sharma GitHub
 
-💼 LinkedIn:https://www.linkedin.com/in/kamaljeet-sharma6321/
+💼 LinkedIn:https://www.linkedin.com/in/kamaljeet-sharma-r264/
 
 📄 License
 
