@@ -92,7 +92,7 @@ const sampleListings = [
         description: "Experience royal luxury",
         image: {
             filename: "Listingimage",
-            url: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb"
+            url: "https://images.unspl ash.com/photo-1542314831-068cd1dbfeeb"
         },
         price: 15000,
         location: "Jaipur",
